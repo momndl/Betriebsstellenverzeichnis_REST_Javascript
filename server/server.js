@@ -1,14 +1,32 @@
 const express = require("express");
 const app = express();
 const fs = require("fs");
+const path = require("path");
 const PORT = process.env.PORT || 3001;
 
 // Path of csvFile to read
-const path = "/../files/bsv_2021_10.csv";
-// Array with all Betriebsstellen
+let pathToCsv = "/../";
+// Array we fill with all Betriebsstellen
 const bsvArray = [];
 
-fs.readFile(__dirname + path, "utf8", (err, data) => {
+const seperator = ";";
+
+// we use this function to let the server generate the filepath
+function findFile(startPath, filter) {
+    if (!fs.existsSync(startPath)) {
+        return;
+    }
+    const files = fs.readdirSync(startPath);
+    const filename = path.join(startPath, files[0]);
+
+    if (filename.endsWith(filter)) {
+        pathToCsv += filename;
+    }
+}
+
+findFile("./files", ".csv");
+
+fs.readFile(__dirname + pathToCsv, "utf8", (err, data) => {
     if (err) {
         return console.log("Error: ", err);
     }
@@ -17,26 +35,25 @@ fs.readFile(__dirname + path, "utf8", (err, data) => {
     const lineArray = data.split("\r\n");
 
     // array with every header as a single entry
-    const headerArray = lineArray[0].split(";");
+    const headerArray = lineArray[0].split(seperator);
 
     // creating new objects for every Betriebsstelle and pushing them
-    // to bsvArray
-    lineArray.forEach((element) => {
-        const betriebsstelleArray = element.split(";");
-        const betriebsstelle = {};
+    // to bsvArray after filling with key - value pairs
+    lineArray.forEach((element, index) => {
+        if (index == 0) {
+            return;
+            // lineArray[0] are the csv headers. we filter them out in this if-clause.
+        } else if (element !== "") {
+            const betriebsstelleArray = element.split(";");
+            const betriebsstelle = {};
 
-        for (let i = 0; i < betriebsstelleArray.length; i++) {
-            betriebsstelle[headerArray[i]] = betriebsstelleArray[i];
+            for (let i = 0; i < betriebsstelleArray.length; i++) {
+                betriebsstelle[headerArray[i]] = betriebsstelleArray[i];
+            }
+            bsvArray.push(betriebsstelle);
         }
-
-        bsvArray.push(betriebsstelle);
     });
-
-    // no need for first entry
-    bsvArray.shift();
 });
-
-//app.use(express.json());
 
 app.get("/betriebsstellen/:rl100", (req, res) => {
     const { rl100 } = req.params;
