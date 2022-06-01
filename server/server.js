@@ -5,6 +5,7 @@ const path = require("path");
 const cors = require("cors");
 const PORT = process.env.PORT || 3001;
 
+// enabling cors for all pages
 app.use(cors());
 // Path of csvFile to read
 let pathToCsv = "/../";
@@ -62,7 +63,7 @@ app.get("/betriebsstellen/:rl100", (req, res) => {
 
     for (let i = 0; i < bsvArray.length; i++) {
         if (bsvArray[i]["RL100-Code"] === rl100) {
-            return res.json(bsvArray[i]);
+            return res.json({ betriebsstelle: bsvArray[i] });
         }
     }
     return res.status(404).json("RL100-Code unknown");
