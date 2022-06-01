@@ -2,8 +2,10 @@ const express = require("express");
 const app = express();
 const fs = require("fs");
 const path = require("path");
+const cors = require("cors");
 const PORT = process.env.PORT || 3001;
 
+app.use(cors());
 // Path of csvFile to read
 let pathToCsv = "/../";
 // Array we fill with all Betriebsstellen
