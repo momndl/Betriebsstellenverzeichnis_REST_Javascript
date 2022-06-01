@@ -63,7 +63,7 @@ app.get("/betriebsstellen/:rl100", (req, res) => {
 
     for (let i = 0; i < bsvArray.length; i++) {
         if (bsvArray[i]["RL100-Code"] === rl100) {
-            return res.json({ betriebsstelle: bsvArray[i] });
+            return res.json(bsvArray[1]);
         }
     }
     return res.status(404).json("RL100-Code unknown");
